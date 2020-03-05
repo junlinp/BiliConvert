@@ -1,14 +1,19 @@
 echo "Bash Version: ${BASH_VERSION}"
+echo "OS : $(uname)"
+sleep 5
 
+if [ "$(uname)" == "Darwin"]; then
+	encoder="h264_videotoolbox"
+elif ["$(expr substr $(uname -s) 1 5)" == "Linux"];then
+	encoder="h264_nvenc"
+elif [ "$(expr substr $(uname -s) 1 10) "=="MINGW32_NT"];then
+	encoder="h264_nvenc"
+fi
 
 ffmpeg_transform_second() {
-	CMD="ffmpeg -i ${1} -i ${2} -c:v h264_videotoolbox -b:v 32000k ${3}"
+	CMD="ffmpeg -i ${1} -i ${2} -c:v ${encoder} -b:v 32000k ${3}"
 	echo ${CMD}
     $($CMD)
-}
-
-ffmpeg_transform_first() {
-	CMD="ffmpeg -c:v h264_videotoolbox -b:v 32000k -i ${1} ${2}"
 }
 
 process_working_dir() {
@@ -22,6 +27,11 @@ process_working_dir() {
 }
 
 root="download"
+OUTPUT_DIR="ConvertedVideo"
+if [ ! -d ${OUTPUT_DIR} ]; then
+	mkdir ${OUTPUT_DIR}
+fi
+
 if [ -d ${root} ]; then
   echo "${root} Directory Exists"
 fi
@@ -34,6 +44,9 @@ do
 	do
 	    work_dir="${root}/${video_director}/$P"
 		echo "Work ${work_dir}"
-		process_working_dir ${work_dir} "${root}/${video_director}_${P}.mp4"
+		output_filename="${OUTPUT_DIR}/${video_director}_${P}.mp4"
+		if [ ! -f ${output_filename} ]; then
+		    process_working_dir ${work_dir} "${OUTPUT_DIR}/${video_director}_${P}.mp4"
+	    fi
     done
 done
