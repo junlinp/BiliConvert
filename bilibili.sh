@@ -1,18 +1,19 @@
 echo "Bash Version: ${BASH_VERSION}"
 echo "OS : $(uname)"
 sleep 5
-
+encoder="h264"
 if [ "$(uname)" == "Darwin"]; then
 	encoder="h264_videotoolbox"
-elif ["$(expr substr $(uname -s) 1 5)" == "Linux"];then
-	encoder="h264_nvenc"
+elif ["$(uname)" == "Linux"];then
+	encoder="h264"
 elif [ "$(expr substr $(uname -s) 1 10) "=="MINGW32_NT"];then
 	encoder="h264_nvenc"
 fi
 
 ffmpeg_transform_second() {
-	CMD="ffmpeg -i ${1} -i ${2} -c:v ${encoder} -b:v 32000k ${3}"
-	echo ${CMD}
+    CMD="ffmpeg -i ${1} -i ${2} -c:v ${encoder} -b:v 32000k ${3}"
+    echo "RUNING: ${CMD}"
+    sleep 5
     $($CMD)
 }
 
@@ -26,8 +27,11 @@ process_working_dir() {
 	done
 }
 
-root="download"
-OUTPUT_DIR="ConvertedVideo"
+root=$1
+OUTPUT_DIR="${root}/ConvertedVideo"
+echo "Working Directory : ${root}"
+echo "Output Directory : ${OUTPUT_DIR}"
+sleep 5
 if [ ! -d ${OUTPUT_DIR} ]; then
 	mkdir ${OUTPUT_DIR}
 fi
